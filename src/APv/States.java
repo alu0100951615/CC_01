@@ -8,17 +8,16 @@ public class States {
 	private List<Transition> transitions = new ArrayList<Transition>();
 	
 	private String state;
-	private int nTransitions;
+
 	
 	public States(String state) {
 		
 		this.setState(state);
-		nTransitions = 0;
+
 		
 	}
 	
 	public void addTransition(int transition,String chainIn, String stackIn, String nextState, List<String> stackOutput) {
-		++nTransitions;
 		transitions.add(new Transition(transition,chainIn, stackIn, nextState, stackOutput));
 		
 	}
@@ -29,14 +28,6 @@ public class States {
 
 	public void setTransitions(List<Transition> transitions) {
 		this.transitions = transitions;
-	}
-
-	public int getnTransitions() {
-		return nTransitions;
-	}
-
-	public void setnTransitions(int nTransitions) {
-		this.nTransitions = nTransitions;
 	}
 
 	public ArrayList<Integer> searchTransitions(String state, String chainInput, String stackInput){

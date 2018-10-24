@@ -1,92 +1,79 @@
 package APv;
 
+import java.io.File;
 import java.util.*;
 
-
-
 public class Automata {
-	
-	private LeerFichero lector = new LeerFichero("APv-2.txt");
+
 	private String actualState;
 
 	private ArrayList<String> stack = new ArrayList<String>();
+
+	private Alfabet chainAlfabet;
+
+	private Alfabet stackAlfabet;
 
 	private String initialStack;
 
 	private List<States> states = new ArrayList<States>();
 	private ArrayList<Memory> memory = new ArrayList<Memory>();
 
-	public Automata() {
-		
-		lector.Caracter();
-		
-		
-		
-		
-		
-		
-		
-		
+	public Automata(String fichero) {
 
-		
-//		  this.actualState = "q1";
-//		  
-//		  this.initialStack = "S"; this.states.add(new States("q1"));
-//		  this.states.add(new States("q2")); List<String> stacko = new
-//		  ArrayList<String>(); stacko.add("A"); this.states.get(0).addTransition(1,"a",
-//		  "S", "q1", stacko); stacko.clear(); stacko.add("A"); stacko.add("A");
-//		  this.states.get(0).addTransition(2,"a", "A", "q1", stacko); stacko.clear();
-//		  stacko.add("."); this.states.get(0).addTransition(3,"b", "A", "q2", stacko);
-//		  this.states.get(1).addTransition(4,"b", "A", "q2", stacko);
-		 
 
-		this.actualState = "p";
+		try {
+			
+			Scanner in = new Scanner(new File(fichero));
+			String[] estados ;
+			do {
+				estados = in.nextLine().split(" ");
+			}while(estados[0].charAt(0) == '#');
+			
+			
+			for(String st : estados) {
+//				System.out.println(estados);
+				this.states.add(new States(st));
+				
+			}
+			
+			chainAlfabet = new Alfabet(in.nextLine().split(" "), "Cadena");
+			
+			stackAlfabet = new Alfabet(in.nextLine().split(" "), "Pila");
+			
+			actualState = in.nextLine();
+			
+			initialStack = in.nextLine();
+			int ntransiciones = 1;
+			
 
-		this.initialStack = "S";
-		this.states.add(new States("p"));
-		this.states.add(new States("q"));
-		List<String> stacko = new ArrayList<String>();
-		stacko.add("0");
-		stacko.add("S");
-		this.states.get(0).addTransition(1, "0", "S", "p", stacko);
-		stacko.clear();
-		stacko.add("1");
-		stacko.add("S");
-		this.states.get(0).addTransition(2, "1", "S", "p", stacko);
-		stacko.clear();
-		stacko.add("0");
-		stacko.add("0");
-		this.states.get(0).addTransition(3, "0", "0", "p", stacko);
-		stacko.clear();
-		stacko.add("0");
-		stacko.add("1");
-		this.states.get(0).addTransition(4, "0", "1", "p", stacko);
-		stacko.clear();
-		stacko.add("1");
-		stacko.add("0");
-		this.states.get(0).addTransition(5, "1", "0", "p", stacko);
-		stacko.clear();
-		stacko.add("1");
-		stacko.add("1");
-		this.states.get(0).addTransition(6, "1", "1", "p", stacko);
-		stacko.clear();
-		stacko.add("S");
-		this.states.get(0).addTransition(7, ".", "S", "q", stacko);
-		stacko.clear();
-		stacko.add("0");
-		this.states.get(0).addTransition(8, ".", "0", "q", stacko);
-		stacko.clear();
-		stacko.add("1");
-		this.states.get(0).addTransition(9, ".", "1", "q", stacko);
-		stacko.clear();
-		stacko.add(".");
-		this.states.get(1).addTransition(10, "0", "0", "q", stacko);
-		stacko.clear();
-		stacko.add(".");
-		this.states.get(1).addTransition(11, "1", "1", "q", stacko);
-		stacko.clear();
-		stacko.add(".");
-		this.states.get(1).addTransition(12, ".", "S", "q", stacko);
+			
+			while (in.hasNextLine()) {
+				
+				String [] transiciones = in.nextLine().split(" ");
+			
+				for(States estado : states) {
+					if(estado.getState().equals(transiciones[0])) {
+						List<String> outStack = new ArrayList<String>();
+						for(int i = 4; i < transiciones.length; i++) {
+							stackAlfabet.pertenece(transiciones[i]);
+							outStack.add(transiciones[i]);
+						}
+						chainAlfabet.pertenece(transiciones[1]);
+						stackAlfabet.pertenece(transiciones[2]);
+						estado.addTransition(ntransiciones, transiciones[1], transiciones[2], transiciones[3], new ArrayList<String>(outStack));
+				//		System.out.println(ntransiciones+ " " + estado.getState() + " "+ transiciones[1] + " " + transiciones[2] + " " + transiciones[3] + " " + outStack);
+						ntransiciones++;
+					}
+							
+				}
+			}
+			
+			
+		} catch (Exception ex) {
+			System.out.println("Mensaje: " + ex.getMessage());
+			System.out.println("Revise el fichero de entrada.");
+			System.exit(0);
+		}
 
 	}
 
@@ -99,12 +86,13 @@ public class Automata {
 		ArrayList<Integer> transiciones = new ArrayList<Integer>();
 		
 		for(States state : states) {
-			if(state.getState() == actualState)
+			if(state.getState().equals(actualState)) {
 				transiciones = state.searchTransitions(actualState, chain, initialStack);		//Busco las primeras transiciones
+			}
 		}
 		
 		stack.add(initialStack);
-		
+		//System.out.println("T: " + transiciones);
 		for(int i : transiciones) {
 			memory.add(new Memory(actualState, chain, new ArrayList<String>(stack), i, cadenaConsumida));	//Las añado a la memoria
 		}
@@ -120,8 +108,9 @@ public class Automata {
 			
 			System.out.println(memory);
 			
-			cadenaConsumida = memory.get(memory.size()-1).getMemoConsumida();
+			
 			chain = memory.get(memory.size()-1).getChain();
+			cadenaConsumida = memory.get(memory.size()-1).getMemoConsumida();
 			stack = memory.get(memory.size()-1).getStack();
 			actualState = memory.get(memory.size()-1).getState();	//Saco la transion del top
 			transicion = memory.get(memory.size()-1).getPosiblyTransitions();
@@ -148,14 +137,14 @@ public class Automata {
 			actualState = tran.getNextState(); //Cambio el estado
 			
 			for (int i = tran.getStackOutput().size() - 1; i >= 0; i--) {
-				if (tran.getStackOutput().get(i) != ".")
+				if (!tran.getStackOutput().get(i).equals("."))
 					stack.add(tran.getStackOutput().get(i));		//Añado las cosas de la pila de transicion
 			}
 			
 	
 			if(!stack.isEmpty()) {
 				for(States state : states) {
-					if(state.getState() == actualState)
+					if(state.getState().equals(actualState))
 						if(chain.length() != 0)
 							transiciones = state.searchTransitions(actualState, chain, stack.get(stack.size()-1));	//Busco las posibles transiciones con el nuevo chain y stack
 						else
@@ -174,12 +163,12 @@ public class Automata {
 			
 				if(chain.isEmpty())
 					if(stack.isEmpty())
-						finBucle = true;
+						finBucle = true;	//Se acepta la cadena
 				if(memory.isEmpty())
-					finBucle = true;
+					finBucle = true;	//Se han hecho todas las posibilidades y no se acepta
 			
 					
-			//Tenemos un error por el bucle while
+			
 			
 			
 		}
@@ -196,12 +185,12 @@ public class Automata {
 
 	public static void main(String[] args) {
 
-		Automata aut = new Automata();
+		Automata aut = new Automata(args[0]);
 
-		if (aut.compute("1001"))
-			System.out.println("Cadena Aceptada");
+		if (aut.compute("1111"))
+			System.out.println("Furula");
 		else
-			System.out.println("Cadena No aceptada");
+			System.out.println("No furula");
 
 	}
 
