@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * Ejecutable del programa.
+ * Ejecutable del programa. El fichero se le pasa como argumento de linea de comandos.
+ * 
+ * TRAZA
+ * --- > { "Estado" "Cadena" "[Simbolos Pila]" "Transicion" } , Si el elemento es el ultimo del almacén lleva al principio ###
+ * puesto que es el que se está examinando
  *
  */
 public class Main {

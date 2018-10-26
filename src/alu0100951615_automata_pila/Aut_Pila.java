@@ -92,6 +92,11 @@ public class Aut_Pila {
 		for(int i : transiciones) {
 			almacen.add(new Almacen(actualState, cadena, new ArrayList<String>(pila), i));	
 		}
+		
+		if(almacen.size() == 0) {
+			System.out.println("No hay transiciones desde el estado incial ");
+			return false;
+		}
 		transiciones.clear();	
 						
 		while(!end) {
@@ -104,12 +109,12 @@ public class Aut_Pila {
 					output += "###" + almacen.get(i).toString() + " }";
 			}			
 			System.out.println(output);	
-						
+			
 			cadena = almacen.get(almacen.size()-1).getCadena();				//Obtenemos del top del almacen los elementos que nos interesan
 			pila = almacen.get(almacen.size()-1).getPila();					//la cadena, el simbolo de la pila, el estado y el ID de la transicion,
 			actualState = almacen.get(almacen.size()-1).getEstado();		//por ultimo lo borramos DEL ALMACEN.
-			transicion = almacen.get(almacen.size()-1).getTransOpc();		
-			almacen.remove(almacen.size()-1);								
+			transicion = almacen.get(almacen.size()-1).getTransOpc();	
+			almacen.remove(almacen.size()-1);							
 			
 			Transicion tran = null;											//Buscamos el ID de la transicion
 			for (Estado state : estado) {
